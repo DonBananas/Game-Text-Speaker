@@ -5,7 +5,8 @@
 **Reads aloud any text on your screen: games first, but also apps, images, videos and
 subtitles. Made for people with low vision.**
 
-Hold a key, draw a box around the text, and a natural-sounding voice reads it to you.
+Hold a key (**F4** by default, and you can [change it to any key you like](#changing-the-keys)),
+draw a box around the text, and a natural-sounding voice reads it to you.
 It works in Italian and English, even when both are mixed in the same text.
 
 ## Who it's for
@@ -35,6 +36,8 @@ It never takes focus away from your game, and it starts speaking in a fraction o
 - Edge's free Natural voices (default: *Ava Multilingual*, which reads Italian and English)
 - **Saved box:** save the area where a game shows its dialogue, then just tap a key to read
   it each time
+- **Your own keys:** the read, stop and quit keys can all be changed to any keyboard key
+  or mouse side button ([how](#changing-the-keys))
 - Adjustable reading speed and voice
 - Fixes common OCR mistakes before reading, such as `II` → `Il` and `Al` → `AI`
 
@@ -58,7 +61,9 @@ It never takes focus away from your game, and it starts speaking in a fraction o
 
 ## Controls
 
-These are the default keys; you can change them (see [Changing the keys](#changing-the-keys)).
+> 🔧 **Every key below can be changed.** F4, F6 and F9 are only the defaults: you can swap
+> any of them for a key you prefer, such as a mouse side button. It takes a minute, see
+> [Changing the keys](#changing-the-keys).
 
 | Key | Action |
 | --- | --- |
@@ -71,12 +76,14 @@ These are the default keys; you can change them (see [Changing the keys](#changi
 
 **Good to know:** you draw the box with the mouse, so you need to be able to see roughly
 where the text is. For text that always appears in the same place, like game dialogue,
-save the box once and then only tap F4.
+save the box once and then only tap F4 (or whichever read key you chose).
 
 ## Changing the keys
 
-Don't like F4, or does your game already use it? You can pick any key, including the
-side buttons on your mouse.
+**Every key Game Text Speaker uses can be changed:** the read key (F4), the stop key (F6)
+and the quit key (F9). Don't like F4, or does your game already use it? Pick any key you
+like, including the side buttons on your mouse. The left and right clicks you use while
+drawing the box stay the same.
 
 1. Right-click `Game Text Speaker.ahk` and choose **Open with → Notepad**.
 2. At the very top you'll find these three lines:
