@@ -1,4 +1,4 @@
-"""Local bridge between Game Voice Reader and Edge's own voices.
+"""Local bridge between Game Text Speaker and Edge's own voices.
 
 Serves speech.html on 127.0.0.1 and hands it the text the AHK script writes to
 request.txt (an empty request means "stop"). The page speaks it with Edge's

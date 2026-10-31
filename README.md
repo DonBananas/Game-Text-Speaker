@@ -1,12 +1,37 @@
-# Game Voice Reader
+# Game Text Speaker
 
-Read any text on screen out loud: hold a key, draw a box around the text, and a natural
-Microsoft Edge voice reads it. Made for games and apps where you can't select or copy
-the text, and it handles mixed Italian and English.
+**Reads aloud any text on your screen: games first, but also apps, images, videos and
+subtitles. Made for people with low vision.**
 
-- Windows' built-in OCR, nothing to install for text recognition
+Hold a key, draw a box around the text, and a natural-sounding voice reads it to you.
+It works in Italian and English, even when both are mixed in the same text.
+
+## Who it's for
+
+- People with **low vision** or **reading difficulties** such as dyslexia
+- Anyone who finds small text, long dialogue or fast subtitles tiring to read
+
+## Why not just use a screen reader?
+
+Screen readers like Narrator or NVDA read the text that apps *tell* them about. Games, and
+many other programs, draw their text as pictures, so a screen reader sees nothing.
+Game Text Speaker reads what is actually **visible on the screen**, so it works where
+screen readers can't:
+
+- 🎮 **Games:** dialogue, menus, quests, item descriptions, subtitles
+- 🎬 **Videos:** burned-in subtitles and captions
+- 🖼️ **Images:** photos, screenshots, comics, scanned pages, image-only PDFs
+- 🌐 **Websites and apps** that block copying or hide text inside images
+
+It never takes focus away from your game, and it starts speaking in a fraction of a second.
+
+## Features
+
+- Windows' built-in OCR, so nothing extra to install for text recognition
 - Edge's free Natural voices (default: *Ava Multilingual*, which reads Italian and English)
-- Starts speaking in a fraction of a second and never steals focus from the game
+- **Saved box:** save the area where a game shows its dialogue, then just tap a key to read
+  it each time
+- Adjustable reading speed and voice
 - Fixes common OCR mistakes before reading, such as `II` → `Il` and `Al` → `AI`
 
 ## Requirements
@@ -14,15 +39,16 @@ the text, and it handles mixed Italian and English.
 - Windows 10 or 11
 - [AutoHotkey v2](https://www.autohotkey.com/)
 - [Python 3](https://www.python.org/) (3.12 or newer, no extra packages needed)
-- Microsoft Edge
+- Microsoft Edge (already included in Windows)
 
 ## Setup
 
-1. Download or clone this repository.
+1. Download this repository: click the green **Code** button, then **Download ZIP**, and
+   unzip it anywhere.
 2. If Python isn't installed at `%LOCALAPPDATA%\Programs\Python\Python314\`, change
-   `PythonExe` at the top of `Game Voice Reader - No Pause.ahk` to your `pythonw.exe`.
-3. Run `Game Voice Reader - No Pause.ahk`.
-4. An Edge window opens with a blue button. Click it once: Edge only lets a page speak
+   `PythonExe` at the top of `Game Text Speaker.ahk` to your `pythonw.exe`.
+3. Double-click `Game Text Speaker.ahk`.
+4. An Edge window opens with a big blue button. Click it once: Edge only lets a page speak
    after a click. The window then minimizes itself and you'll see *Voce pronta*.
 
 ## Controls
@@ -36,9 +62,14 @@ the text, and it handles mixed Italian and English.
 | **F6** | Stop reading |
 | **F9** | Quit |
 
+**Good to know:** you draw the box with the mouse, so you need to be able to see roughly
+where the text is. For text that always appears in the same place, like game dialogue,
+save the box once and then only tap F4.
+
 ## Settings
 
-All settings are at the top of `Game Voice Reader - No Pause.ahk`:
+All settings are at the top of `Game Text Speaker.ahk`. Open it with Notepad, change the
+value, save, and restart the script.
 
 | Setting | What it does |
 | --- | --- |
@@ -52,8 +83,8 @@ All settings are at the top of `Game Voice Reader - No Pause.ahk`:
 
 - `"webspeech"` (default): a local page in Edge speaks with Edge's own voices. Fastest,
   and nothing switches windows.
-- `"browser"`: the original method. It writes the text to `page.txt`, reloads it in an
-  off-screen Edge window and starts Edge's Read Aloud (Ctrl+Shift+U). No Python needed.
+- `"browser"`: writes the text to `page.txt`, reloads it in an off-screen Edge window and
+  starts Edge's Read Aloud (Ctrl+Shift+U). No Python needed.
 - `"edgetts"`: plays the voices directly with [edge-tts](https://github.com/rany2/edge-tts)
   and `ffplay`, with no Edge window. Needs `pip install edge-tts` and FFmpeg. Its connection
   can be slow (2–10 s) on some networks.
@@ -68,10 +99,10 @@ All settings are at the top of `Game Voice Reader - No Pause.ahk`:
 
 ## How it works
 
-`Game Voice Reader - No Pause.ahk` handles the box and the OCR, cleans up the text and writes
-it to `request.txt`. `speech_server.py` serves `speech.html` on `127.0.0.1` and passes each
-new request to the page, which reads it aloud with the Web Speech API. Everything stays on
-your PC except the voice itself, which Edge fetches from Microsoft.
+`Game Text Speaker.ahk` handles the box and the OCR, cleans up the text and writes it to
+`request.txt`. `speech_server.py` serves `speech.html` on `127.0.0.1` and passes each new
+request to the page, which reads it aloud with the Web Speech API. Everything stays on your
+PC except the voice itself, which Edge fetches from Microsoft.
 
 ## Credits
 

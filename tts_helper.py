@@ -1,4 +1,4 @@
-"""Background voice for Game Voice Reader.
+"""Background voice for Game Text Speaker.
 
 Streams Microsoft Edge "Natural" voices (via edge-tts) straight to the speakers
 with ffplay, so no Edge window is needed. The AHK script talks to it through a

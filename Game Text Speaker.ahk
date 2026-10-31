@@ -190,13 +190,13 @@ StartBackend() {
 	global Backend, helperPid
 	if (Backend == "webspeech") {
 		if !FileExist(PythonExe) {
-			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Voice Reader", "Icon!"
+			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Text Speaker", "Icon!"
 			Backend := "browser"
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
 			try FileDelete A_ScriptDir "\voice_ready.flag"
 			Loop 5 {   ; pagine rimaste da un avvio precedente
-				if !WinExist("Voice Reader ahk_exe msedge.exe")
+				if !WinExist("Game Text Speaker ahk_exe msedge.exe")
 					break
 				WinClose
 				WinWaitClose(, , 2)
@@ -214,7 +214,7 @@ StartBackend() {
 	}
 	if (Backend == "edgetts") {
 		if !FileExist(PythonExe) {
-			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Voice Reader", "Icon!"
+			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Text Speaker", "Icon!"
 			Backend := "browser"
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
@@ -240,7 +240,7 @@ WaitVoiceReady() {
 		return
 	SetTimer WaitVoiceReady, 0
 	try FileDelete flag
-	if WebMinimize && WinExist("Voice Reader ahk_exe msedge.exe")
+	if WebMinimize && WinExist("Game Text Speaker ahk_exe msedge.exe")
 		WinMinimize
 	ToolTip "Voce pronta."
 	SetTimer () => ToolTip(), -1500
@@ -250,7 +250,7 @@ StopHelper(*) {
 	if helperPid
 		try ProcessClose helperPid
 	if (Backend == "webspeech")
-		try WinClose "Voice Reader ahk_exe msedge.exe"
+		try WinClose "Game Text Speaker ahk_exe msedge.exe"
 }
 
 EdgeWin() => "page.txt ahk_exe msedge.exe"
