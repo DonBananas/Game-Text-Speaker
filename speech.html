@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Voice Reader</title>
+<style>
+  body { margin: 0; font: 18px/1.5 "Segoe UI", sans-serif; background: #1e1e1e; color: #ddd;
+         display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+  button { font: inherit; font-size: 28px; padding: 24px 48px; border: 0; border-radius: 12px;
+           background: #3a7afe; color: #fff; cursor: pointer; }
+  #status { margin-top: 20px; }
+  #last { max-width: 80ch; margin-top: 12px; color: #999; font-size: 15px; }
+</style>
+</head>
+<body>
+<button id="go">Clicca qui per attivare la voce</button>
+<div id="status">In attesa del clic…</div>
+<div id="last"></div>
+<script>
+const params = new URLSearchParams(location.search);
+const wantVoice = (params.get("voice") || "Ava Multilingual").toLowerCase();
+const rate = parseFloat(params.get("rate") || "1");
+const synth = window.speechSynthesis;
+const statusEl = document.getElementById("status");
+let voice = null, lastId = -1, active = [], session = null;
+
+function log(m, extra = "") { fetch("/log?m=" + encodeURIComponent(m) + extra).catch(() => {}); }
+
+function pickVoice() {
+  const voices = synth.getVoices();
+  voice = voices.find(v => v.name.toLowerCase().includes(wantVoice))
+       || voices.find(v => v.name.toLowerCase().replace(/\s/g, "").includes(wantVoice.replace(/\s/g, "")))
+       || null;
+  return voices.length;
+}
+synth.onvoiceschanged = pickVoice;
+pickVoice();
+
+// Sentences, merged up to ~200 characters: short enough that online voices
+// don't cut off, long enough to avoid pauses between pieces.
+function chunks(text) {
+  const parts = text.match(/[^.!?…]+[.!?…]+["'”»)\]]*\s*|[^.!?…]+$/g) || [text];
+  const out = [];
+  for (let p of parts) {
+    while (p.length > 260) {
+      let cut = p.lastIndexOf(", ", 220); if (cut < 80) cut = p.lastIndexOf(" ", 220); if (cut < 80) cut = 220;
+      out.push(p.slice(0, cut + 1)); p = p.slice(cut + 1);
+    }
+    if (out.length && (out[out.length - 1] + p).length < 200) out[out.length - 1] += p; else out.push(p);
+  }
+  return out.filter(s => s.trim());
+}
+
+function speak(msg) {
+  if (synth.speaking || synth.pending) synth.cancel();
+  active = [];
+  const text = (msg.text || "").trim();
+  if (!text) { statusEl.textContent = "Lettura interrotta."; return; }
+  document.getElementById("last").textContent = text;
+  let first = true;
+  for (const c of chunks(text)) {
+    const u = new SpeechSynthesisUtterance(c);
+    if (voice) u.voice = voice;
+    u.rate = rate;
+    if (first) {
+      u.onstart = () => { log(`first audio after ${Math.round(Date.now() - msg.t)} ms`); };
+      first = false;
+    }
+    u.onerror = e => { if (e.error !== "interrupted" && e.error !== "canceled") log("speech error: " + e.error); };
+    active.push(u);  // keep references, or Chromium may drop the events
+    synth.speak(u);
+  }
+  statusEl.textContent = "Sto leggendo… (" + (voice ? voice.name : "voce predefinita") + ")";
+}
+
+async function poll() {
+  while (true) {
+    try {
+      const r = await fetch("/next?after=" + lastId, { cache: "no-store" });
+      const msg = await r.json();
+      // The script was restarted with a new page: this old one must stay quiet.
+      if (session && msg.session !== session) {
+        synth.cancel();
+        statusEl.textContent = "Pagina vecchia: chiudi questa finestra.";
+        return;
+      }
+      session = msg.session;
+      const isNew = lastId >= 0 && msg.id > lastId;
+      lastId = msg.id;
+      if (isNew) speak(msg);
+    } catch (e) {
+      statusEl.textContent = "Script non raggiungibile, riprovo…";
+      await new Promise(res => setTimeout(res, 1000));
+    }
+  }
+}
+
+document.getElementById("go").onclick = () => {
+  // Edge only lets a page talk after a click: this empty utterance unlocks it.
+  synth.speak(new SpeechSynthesisUtterance(""));
+  pickVoice();
+  document.getElementById("go").remove();
+  statusEl.textContent = voice ? "Pronto: " + voice.name : "Voce \"" + wantVoice + "\" non trovata, uso quella predefinita.";
+  log("page ready, voice " + (voice ? voice.name : "NOT FOUND (" + wantVoice + ")"), "&ready=1");
+  poll();
+};
+</script>
+</body>
+</html>

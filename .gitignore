@@ -1,0 +1,17 @@
+# Browser profile: can contain cookies and logins
+EdgeProfile/
+
+# Text from your screen and runtime files
+page.txt
+tts_log.txt
+request.txt
+request.tmp
+request.working
+voice_ready.flag
+
+# Local backup and Python cache
+Game Voice Reader - Edge window (backup).ahk
+__pycache__/
+
+# Replaced by README.md
+How to use.txt
