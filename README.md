@@ -53,9 +53,12 @@ It never takes focus away from your game, and it starts speaking in a fraction o
    `PythonExe` at the top of `Game Text Speaker.ahk` to your `pythonw.exe`.
 3. Double-click `Game Text Speaker.ahk`.
 4. An Edge window opens with a big blue button. Click it once: Edge only lets a page speak
-   after a click. The window then minimizes itself and you'll see *Voice ready*.
+   after a click. The window then minimizes itself and you'll see *Voice ready*, with a
+   reminder of your keys.
 
 ## Controls
+
+These are the default keys; you can change them (see [Changing the keys](#changing-the-keys)).
 
 | Key | Action |
 | --- | --- |
@@ -69,6 +72,44 @@ It never takes focus away from your game, and it starts speaking in a fraction o
 **Good to know:** you draw the box with the mouse, so you need to be able to see roughly
 where the text is. For text that always appears in the same place, like game dialogue,
 save the box once and then only tap F4.
+
+## Changing the keys
+
+Don't like F4, or does your game already use it? You can pick any key, including the
+side buttons on your mouse.
+
+1. Right-click `Game Text Speaker.ahk` and choose **Open with → Notepad**.
+2. At the very top you'll find these three lines:
+
+   ```autohotkey
+   global ReadKey := "F4"   ; hold to draw the box, release to read
+   global StopKey := "F6"   ; stop reading
+   global QuitKey := "F9"   ; close Game Text Speaker
+   ```
+
+3. Change the name between the quotes, for example `global ReadKey := "XButton1"`.
+4. Save the file, close Game Text Speaker with your quit key, and start it again.
+
+Some key names you can use:
+
+| Key | Write it as |
+| --- | --- |
+| F1 to F12 | `"F1"` … `"F12"` |
+| A letter or number | `"q"`, `"5"` |
+| Caps Lock, Insert, Pause | `"CapsLock"`, `"Insert"`, `"Pause"` |
+| Number pad keys | `"Numpad0"` … `"Numpad9"` |
+| Mouse side buttons | `"XButton1"` (back), `"XButton2"` (forward) |
+| Clicking the mouse wheel | `"MButton"` |
+
+`ReadKey` must be a single key, and it can't be the left or right mouse button, because
+those are used while you draw the box. `StopKey` and `QuitKey` can also be combinations:
+`"^s"` is Ctrl+S, `"!q"` is Alt+Q and `"+F6"` is Shift+F6. The full list of key names is
+in the [AutoHotkey key list](https://www.autohotkey.com/docs/v2/KeyList.htm).
+
+**Tips:**
+- The key still reaches your game, so pick one the game doesn't use.
+- A mouse side button is very comfortable: one hand stays on the mouse while you read.
+- If you make a typo, Game Text Speaker shows a message telling you which key to fix.
 
 ## Settings
 

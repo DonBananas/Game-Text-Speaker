@@ -7,6 +7,19 @@ CoordMode "Mouse", "Screen"
 CoordMode "ToolTip", "Screen"
 SetTitleMatchMode 2
 
+; =====================================================================
+;  KEYS - change them here. Write the key name between the quotes.
+;  Examples:  "F8"  "CapsLock"  "Numpad0"  "Insert"  "Pause"  "q"
+;             "XButton1" / "XButton2" = side buttons on the mouse
+;             "MButton"               = clicking the mouse wheel
+;  ReadKey must be a single key. StopKey and QuitKey can also be
+;  combinations: "^s" = Ctrl+S, "!q" = Alt+Q, "+F6" = Shift+F6.
+;  All key names: https://www.autohotkey.com/docs/v2/KeyList.htm
+; =====================================================================
+global ReadKey := "F4"   ; hold to draw the box, release to read
+global StopKey := "F6"   ; stop reading
+global QuitKey := "F9"   ; close Game Text Speaker
+
 ; --- CONFIGURAZIONE ---
 ; "webspeech" = pagina locale in Edge che parla con le voci di Edge: niente ricarica né
 ;               cambio di finestra (al primo avvio bisogna cliccare una volta sulla pagina)
@@ -31,22 +44,10 @@ global Fixes := [
 
 global filePath := A_ScriptDir "\page.txt"
 global helperPid := 0
+SetupKeys()
 StartBackend()
 OnExit(StopHelper)
 ; -----------------------
-
-#SuspendExempt
-F9::ExitApp
-
-; --- Tasto F6 per bloccare la lettura ---
-F6::
-{
-    global toRun := 0
-    StopReading()
-    ToolTip "Reading stopped."
-    SetTimer () => ToolTip(), -2000
-}
-#SuspendExempt False
 
 global w := 1200, h := 400, minsize := 5, step := 21, toRun := 0, toSay := "", hbuffer := 0, bX := 0, bY := 0, bW := 0, bH := 0, cX := 0, cY := 0
 
@@ -55,7 +56,7 @@ Loop {
 	{
 		hbuffer := 8
 		Suspend 1
-		KeyWait "F4" , "D"
+		KeyWait ReadKey , "D"
 		MouseGetPos(&x, &y)
 		cX := x
 		cY := y
@@ -118,7 +119,7 @@ Loop {
 			}
 		}
 
-		if !GetKeyState("F4", "P") || GetKeyState("LButton", "P")
+		if !GetKeyState(ReadKey, "P") || GetKeyState("LButton", "P")
 		{
 			if hbuffer > 0
 			{
@@ -160,6 +161,38 @@ Loop {
 		}
 		Sleep 25
 	}
+}
+
+; Registers StopKey and QuitKey and checks that all three key names are valid,
+; so a typo gives a clear message instead of a key that silently does nothing.
+SetupKeys() {
+	if (GetKeyName(ReadKey) == "" || ReadKey ~= "i)^[LR]Button$") {
+		MsgBox 'ReadKey := "' ReadKey '" is not a key Game Text Speaker can use.`n`n'
+			. 'Use a single key such as "F4", "CapsLock" or "XButton1" (left and right click are already used while drawing the box).`n`n'
+			. 'Change it at the top of "' A_ScriptName '".', "Game Text Speaker", "Icon!"
+		ExitApp
+	}
+	for name, key in Map("StopKey", StopKey, "QuitKey", QuitKey) {
+		action := name == "StopKey" ? StopHotkey : QuitHotkey
+		try {
+			; "S" keeps the key working while the script pauses its other hotkeys.
+			Hotkey key, action, "S"
+		} catch {
+			MsgBox name ' := "' key '" is not a valid key.`n`n'
+				. 'Use a key such as "F6", or a combination such as "^s" (Ctrl+S).`n`n'
+				. 'Change it at the top of "' A_ScriptName '".', "Game Text Speaker", "Icon!"
+			ExitApp
+		}
+	}
+}
+
+QuitHotkey(*) => ExitApp()
+
+StopHotkey(*) {
+	global toRun := 0
+	StopReading()
+	ToolTip "Reading stopped."
+	SetTimer () => ToolTip(), -2000
 }
 
 ; OCR dell'area. Un errore o un risultato vuoto non deve bloccare lo script:
@@ -242,7 +275,7 @@ WaitVoiceReady() {
 	try FileDelete flag
 	if WebMinimize && WinExist("Game Text Speaker ahk_exe msedge.exe")
 		WinMinimize
-	ToolTip "Voice ready."
+	ToolTip "Voice ready. Hold " ReadKey " to read, " StopKey " stops, " QuitKey " quits."
 	SetTimer () => ToolTip(), -1500
 }
 
