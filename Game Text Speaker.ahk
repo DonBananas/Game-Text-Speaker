@@ -43,7 +43,7 @@ F6::
 {
     global toRun := 0
     StopReading()
-    ToolTip "Lettura interrotta."
+    ToolTip "Reading stopped."
     SetTimer () => ToolTip(), -2000
 }
 #SuspendExempt False
@@ -145,7 +145,7 @@ Loop {
 			}
 			else
 			{
-				ToolTip "Nessun testo trovato, riprova."
+				ToolTip "No text found, try again."
 				SetTimer () => ToolTip(), -1500
 				toRun := 0
 				Sleep 200
@@ -190,7 +190,7 @@ StartBackend() {
 	global Backend, helperPid
 	if (Backend == "webspeech") {
 		if !FileExist(PythonExe) {
-			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Text Speaker", "Icon!"
+			MsgBox "Python not found:`n" PythonExe "`n`nUsing the Edge window method instead.", "Game Text Speaker", "Icon!"
 			Backend := "browser"
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
@@ -207,14 +207,14 @@ StartBackend() {
 			Run Format('msedge.exe --new-window --autoplay-policy=no-user-gesture-required '
 				. '--disable-features=CalculateNativeWinOcclusion --disable-backgrounding-occluded-windows '
 				. '"http://127.0.0.1:{1}/?voice={2}&rate={3}"', WebPort, StrReplace(WebVoice, " ", "%20"), WebRate)
-			ToolTip "Clicca il pulsante blu nella pagina di Edge per attivare la voce."
+			ToolTip "Click the blue button on the Edge page to turn on the voice."
 			SetTimer WaitVoiceReady, 250
 			return
 		}
 	}
 	if (Backend == "edgetts") {
 		if !FileExist(PythonExe) {
-			MsgBox "Python non trovato:`n" PythonExe "`n`nUso il metodo con la finestra di Edge.", "Game Text Speaker", "Icon!"
+			MsgBox "Python not found:`n" PythonExe "`n`nUsing the Edge window method instead.", "Game Text Speaker", "Icon!"
 			Backend := "browser"
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
@@ -242,7 +242,7 @@ WaitVoiceReady() {
 	try FileDelete flag
 	if WebMinimize && WinExist("Game Text Speaker ahk_exe msedge.exe")
 		WinMinimize
-	ToolTip "Voce pronta."
+	ToolTip "Voice ready."
 	SetTimer () => ToolTip(), -1500
 }
 
@@ -289,7 +289,7 @@ PlayAllText(textToPlay) {
 	; Trova la finestra di Edge (solo Edge, non altre finestre con "page.txt" nel titolo)
 	if !WinExist(EdgeWin())
 	{
-		ToolTip "Finestra di Edge non trovata."
+		ToolTip "Edge window not found."
 		SetTimer () => ToolTip(), -2000
 		return
 	}
@@ -320,7 +320,7 @@ ActivateEdge() {
 		if WinWaitActive(EdgeWin(), , 0.3)
 			return true
 	}
-	ToolTip "Edge non si è attivato, riprova."
+	ToolTip "Edge did not come to the front, try again."
 	SetTimer () => ToolTip(), -2000
 	return false
 }

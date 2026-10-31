@@ -51,7 +51,7 @@ It never takes focus away from your game, and it starts speaking in a fraction o
    `PythonExe` at the top of `Game Text Speaker.ahk` to your `pythonw.exe`.
 3. Double-click `Game Text Speaker.ahk`.
 4. An Edge window opens with a big blue button. Click it once: Edge only lets a page speak
-   after a click. The window then minimizes itself and you'll see *Voce pronta*.
+   after a click. The window then minimizes itself and you'll see *Voice ready*.
 
 ## Controls
 

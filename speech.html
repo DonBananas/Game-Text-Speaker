@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Game Text Speaker</title>
@@ -13,8 +13,8 @@
 </style>
 </head>
 <body>
-<button id="go">Clicca qui per attivare la voce</button>
-<div id="status">In attesa del clic…</div>
+<button id="go">Click here to turn on the voice</button>
+<div id="status">Waiting for your click…</div>
 <div id="last"></div>
 <script>
 const params = new URLSearchParams(location.search);
@@ -55,7 +55,7 @@ function speak(msg) {
   if (synth.speaking || synth.pending) synth.cancel();
   active = [];
   const text = (msg.text || "").trim();
-  if (!text) { statusEl.textContent = "Lettura interrotta."; return; }
+  if (!text) { statusEl.textContent = "Reading stopped."; return; }
   document.getElementById("last").textContent = text;
   let first = true;
   for (const c of chunks(text)) {
@@ -70,7 +70,7 @@ function speak(msg) {
     active.push(u);  // keep references, or Chromium may drop the events
     synth.speak(u);
   }
-  statusEl.textContent = "Sto leggendo… (" + (voice ? voice.name : "voce predefinita") + ")";
+  statusEl.textContent = "Reading… (" + (voice ? voice.name : "default voice") + ")";
 }
 
 async function poll() {
@@ -81,7 +81,7 @@ async function poll() {
       // The script was restarted with a new page: this old one must stay quiet.
       if (session && msg.session !== session) {
         synth.cancel();
-        statusEl.textContent = "Pagina vecchia: chiudi questa finestra.";
+        statusEl.textContent = "Old page: please close this window.";
         return;
       }
       session = msg.session;
@@ -89,7 +89,7 @@ async function poll() {
       lastId = msg.id;
       if (isNew) speak(msg);
     } catch (e) {
-      statusEl.textContent = "Script non raggiungibile, riprovo…";
+      statusEl.textContent = "Can't reach the script, retrying…";
       await new Promise(res => setTimeout(res, 1000));
     }
   }
@@ -100,7 +100,7 @@ document.getElementById("go").onclick = () => {
   synth.speak(new SpeechSynthesisUtterance(""));
   pickVoice();
   document.getElementById("go").remove();
-  statusEl.textContent = voice ? "Pronto: " + voice.name : "Voce \"" + wantVoice + "\" non trovata, uso quella predefinita.";
+  statusEl.textContent = voice ? "Ready: " + voice.name : "Voice \"" + wantVoice + "\" not found, using the default voice.";
   log("page ready, voice " + (voice ? voice.name : "NOT FOUND (" + wantVoice + ")"), "&ready=1");
   poll();
 };
