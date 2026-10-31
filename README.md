@@ -11,7 +11,9 @@ It works in Italian and English, even when both are mixed in the same text.
 ## Who it's for
 
 - People with **low vision** or **reading difficulties** such as dyslexia
-- Anyone who finds small text, long dialogue or fast subtitles tiring to read
+- Anyone who finds small text, long dialogue or fast subtitles tiring to read.
+
+There are already similar game readers on Github but I never found something that really felt polished (slowness, inconsistency). I tested this script to adress that, it's very fast (basically instantaneous) and works consistently without issues.
 
 ## Why not just use a screen reader?
 
