@@ -6,8 +6,7 @@
 subtitles. Made for people with low vision.**
 
 Hold a key (**F4** by default, and you can [change it to any key you like](#changing-the-keys)),
-draw a box around the text, and a natural-sounding voice reads it to you.
-It works in Italian and English, even when both are mixed in the same text.
+draw a box around the text, and a natural-sounding voice reads it to you. Therea re already similar projects on GitHub but they never felt polishes (slowness, inconsistency). I made this script to fix this issue, they script is very fast, basically instantaneous, and works consistently without any issue.
 
 ## Who it's for
 
