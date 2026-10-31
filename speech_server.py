@@ -36,6 +36,7 @@ class State:
         self.text = ""
         self.t = 0.0
         self.session = str(time.time_ns())
+        self.delivered = 0  # last id the page actually received
 
     def log(self, msg):
         try:
@@ -50,6 +51,17 @@ class State:
             self.text = text
             self.t = time.time() * 1000
             self.cond.notify_all()
+            sent = self.id
+        threading.Timer(1.5, self.check_delivered, args=(sent,)).start()
+
+    def check_delivered(self, sent):
+        # Edge can put a minimized page to sleep after a long idle time. If the
+        # page didn't pick up the text, ask the AHK script to wake its window.
+        with self.cond:
+            if self.delivered >= sent or self.id != sent:
+                return
+        self.log("page didn't answer, waking it up")
+        open(os.path.join(self.folder, "wake.flag"), "w").close()
 
 
 def watch_requests(state, parent):
@@ -96,6 +108,7 @@ def make_handler(state, page_path):
                         msg = {"id": state.id, "text": None}
                     elif state.cond.wait_for(lambda: state.id > after, timeout=20):
                         msg = {"id": state.id, "text": state.text, "t": state.t}
+                        state.delivered = state.id
                     else:
                         msg = {"id": state.id, "text": None}
                 msg["session"] = state.session

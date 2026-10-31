@@ -8,6 +8,7 @@ request.txt
 request.tmp
 request.working
 voice_ready.flag
+wake.flag
 
 # Local backup and Python cache
 Game Voice Reader - Edge window (backup).ahk

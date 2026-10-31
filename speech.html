@@ -51,25 +51,40 @@ function chunks(text) {
   return out.filter(s => s.trim());
 }
 
-function speak(msg) {
+let speakId = 0;
+
+function speak(msg, retry = false) {
   if (synth.speaking || synth.pending) synth.cancel();
+  synth.resume();  // a voice left "paused" by Edge stays silent otherwise
   active = [];
+  const myId = ++speakId;
   const text = (msg.text || "").trim();
   if (!text) { statusEl.textContent = "Reading stopped."; return; }
   document.getElementById("last").textContent = text;
-  let first = true;
+  let first = true, started = false;
   for (const c of chunks(text)) {
     const u = new SpeechSynthesisUtterance(c);
     if (voice) u.voice = voice;
     u.rate = rate;
     if (first) {
-      u.onstart = () => { log(`first audio after ${Math.round(Date.now() - msg.t)} ms`); };
+      u.onstart = () => {
+        started = true;
+        log(`first audio after ${Math.round(Date.now() - msg.t)} ms` + (retry ? " (retry)" : ""));
+      };
       first = false;
     }
     u.onerror = e => { if (e.error !== "interrupted" && e.error !== "canceled") log("speech error: " + e.error); };
     active.push(u);  // keep references, or Chromium may drop the events
     synth.speak(u);
   }
+  // After a long idle time the voice sometimes doesn't start: try once more.
+  if (!retry) setTimeout(() => {
+    if (myId === speakId && !started) {
+      log("voice didn't start, retrying");
+      pickVoice();
+      speak(msg, true);
+    }
+  }, 4000);
   statusEl.textContent = "Reading… (" + (voice ? voice.name : "default voice") + ")";
 }
 
@@ -87,7 +102,8 @@ async function poll() {
       session = msg.session;
       const isNew = lastId >= 0 && msg.id > lastId;
       lastId = msg.id;
-      if (isNew) speak(msg);
+      // Text that waited too long (page was asleep) is no longer wanted.
+      if (isNew && Date.now() - msg.t < 15000) speak(msg);
     } catch (e) {
       statusEl.textContent = "Can't reach the script, retrying…";
       await new Promise(res => setTimeout(res, 1000));
@@ -101,6 +117,8 @@ document.getElementById("go").onclick = () => {
   pickVoice();
   document.getElementById("go").remove();
   statusEl.textContent = voice ? "Ready: " + voice.name : "Voice \"" + wantVoice + "\" not found, using the default voice.";
+  // Edge doesn't freeze a page that holds a lock, even when it's minimized.
+  if (navigator.locks) navigator.locks.request("game-text-speaker-awake", () => new Promise(() => {}));
   log("page ready, voice " + (voice ? voice.name : "NOT FOUND (" + wantVoice + ")"), "&ready=1");
   poll();
 };

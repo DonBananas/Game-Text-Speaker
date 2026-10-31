@@ -230,6 +230,7 @@ StartBackend() {
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
 			try FileDelete A_ScriptDir "\voice_ready.flag"
+			try FileDelete A_ScriptDir "\wake.flag"
 			Loop 5 {   ; pages left over from a previous run
 				if !WinExist("Game Text Speaker ahk_exe msedge.exe")
 					break
@@ -279,6 +280,24 @@ WaitVoiceReady() {
 		WinMinimize
 	ToolTip "Voice ready. Hold " ReadKey " to read, " StopKey " stops, " QuitKey " quits."
 	SetTimer () => ToolTip(), -1500
+	SetTimer WakePage, 250
+}
+
+; After a long idle time Edge may put the minimized page to sleep. The server
+; notices when the page doesn't pick up the text and asks us to wake it: we
+; briefly restore the window without taking focus from the game.
+WakePage() {
+	flag := A_ScriptDir "\wake.flag"
+	if !FileExist(flag)
+		return
+	try FileDelete flag
+	if !(hwnd := WinExist("Game Text Speaker ahk_exe msedge.exe"))
+		return
+	minimized := WinGetMinMax(hwnd) == -1
+	DllCall("ShowWindow", "Ptr", hwnd, "Int", 4)       ; show, don't activate
+	Sleep 400
+	if minimized && WebMinimize
+		DllCall("ShowWindow", "Ptr", hwnd, "Int", 7)   ; minimize, don't activate
 }
 
 StopHelper(*) {

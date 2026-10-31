@@ -150,6 +150,9 @@ value, save, and restart the script.
 - **Wrong voice:** if the log says `voice NOT FOUND`, change `WebVoice` to part of a voice
   name listed in Edge's Read Aloud voice menu.
 - **Silent after the window minimizes:** set `WebMinimize := false`.
+- **Silent after a long break:** Edge can put the minimized voice page to sleep. Game Text
+  Speaker notices and wakes it by itself (the log shows `waking it up`), so the text is
+  read a moment later. If it still stays silent, open the page from the taskbar once.
 
 ## How it works
 
