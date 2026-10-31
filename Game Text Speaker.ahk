@@ -20,26 +20,28 @@ global ReadKey := "F4"   ; hold to draw the box, release to read
 global StopKey := "F6"   ; stop reading
 global QuitKey := "F9"   ; close Game Text Speaker
 
-; --- CONFIGURAZIONE ---
-; "webspeech" = pagina locale in Edge che parla con le voci di Edge: niente ricarica né
-;               cambio di finestra (al primo avvio bisogna cliccare una volta sulla pagina)
-; "browser"   = finestra di Edge e Leggi ad alta voce (Ctrl+Shift+U) - testato e affidabile
-; "edgetts"   = voci Natural senza finestra, ma la connessione di edge-tts è lenta (2-10 s)
+; --- SETTINGS ---
+; How the text is spoken (Backend):
+; "webspeech" = a local page in Edge speaks with Edge's own voices: no reloading and no
+;               window switching (click the page once each time you start the script)
+; "browser"   = Edge window with Read Aloud (Ctrl+Shift+U) - tested and reliable, no Python
+; "edgetts"   = Natural voices with no window, but the edge-tts connection can be slow (2-10 s)
 global Backend := "webspeech"
-global WebVoice := "Ava Multilingual"            ; parte del nome della voce di Edge
-global WebRate := "1.1"                            ; velocità per "webspeech", es. "1.15"
-global WebPort := 8765
-global WebMinimize := true                       ; riduci a icona la pagina dopo il clic
-global Voice := "en-US-AvaMultilingualNeural"   ; voce per "edgetts"
-global Rate := "+0%"                             ; velocità per "edgetts", es. "+15%"
+global WebVoice := "Ava Multilingual"            ; part of the Edge voice name, e.g. "Isabella"
+global WebRate := "1.1"                          ; reading speed: "1" normal, "1.2" faster, "0.9" slower
+global WebPort := 8765                           ; local port for the voice page (change only if busy)
+global WebMinimize := true                       ; minimize the voice page after the click
+global Voice := "en-US-AvaMultilingualNeural"   ; voice for "edgetts"
+global Rate := "+0%"                             ; speed for "edgetts", e.g. "+15%"
+; Where Python is installed (pythonw.exe runs it without a console window)
 global PythonExe := EnvGet("LOCALAPPDATA") "\Programs\Python\Python314\pythonw.exe"
-global BrowserReloadWait := 400                  ; solo per "browser": attesa dopo F5 (ms)
+global BrowserReloadWait := 400                  ; "browser" only: wait after reloading (ms)
 
-; Correzioni degli errori tipici dell'OCR (espressioni regolari, applicate in ordine)
+; Fixes for common OCR mistakes (regular expressions, applied in order)
 global Fixes := [
-    ["(*UCP)\bII(?=\s+\p{Ll})", "Il"],               ; "II gatto" -> "Il gatto" (non "secondo")
-    ["(*UCP)(?<=[\p{L},;:]\s)Al\b(?!')", "AI"],      ; "the Al said" -> "the AI said" (non a inizio frase)
-    ["(?<=\s)\|(?=\s)", "I"],                        ; "|" isolato -> "I"
+    ["(*UCP)\bII(?=\s+\p{Ll})", "Il"],               ; "II gatto" -> "Il gatto" (not "second")
+    ["(*UCP)(?<=[\p{L},;:]\s)Al\b(?!')", "AI"],      ; "the Al said" -> "the AI said" (not at sentence start)
+    ["(?<=\s)\|(?=\s)", "I"],                        ; a lone "|" -> "I"
 ]
 
 global filePath := A_ScriptDir "\page.txt"
@@ -126,7 +128,7 @@ Loop {
 				prevClip := ClipboardAll()
 				A_Clipboard := ""
 				Send "^c"
-				; ClipWait invece di uno Sleep fisso: 20 ms a volte non bastavano
+				; ClipWait instead of a fixed Sleep: 20 ms was sometimes not enough
 				if ClipWait(0.1)
 					toSay := A_Clipboard
 				A_Clipboard := prevClip
@@ -195,8 +197,8 @@ StopHotkey(*) {
 	SetTimer () => ToolTip(), -2000
 }
 
-; OCR dell'area. Un errore o un risultato vuoto non deve bloccare lo script:
-; si riprova una volta ingrandendo di più e in scala di grigi.
+; OCR of the area. An error or an empty result must not stop the script:
+; try once more, zoomed in further and in grayscale.
 ReadArea(x, y, w, h) {
 	if (w < 4 || h < 4)
 		return ""
@@ -212,7 +214,7 @@ ReadArea(x, y, w, h) {
 
 CleanText(text) {
 	text := StrReplace(text, "`r", "")
-	text := RegExReplace(text, "(*UCP)(\p{Ll})-\n(\p{Ll})", "$1$2")  ; parole spezzate a fine riga
+	text := RegExReplace(text, "(*UCP)(\p{Ll})-\n(\p{Ll})", "$1$2")  ; words split across lines
 	text := StrReplace(text, "`n", " ")
 	for fix in Fixes
 		text := RegExReplace(text, fix[1], fix[2])
@@ -228,7 +230,7 @@ StartBackend() {
 		} else {
 			try FileDelete A_ScriptDir "\request.txt"
 			try FileDelete A_ScriptDir "\voice_ready.flag"
-			Loop 5 {   ; pagine rimaste da un avvio precedente
+			Loop 5 {   ; pages left over from a previous run
 				if !WinExist("Game Text Speaker ahk_exe msedge.exe")
 					break
 				WinClose
@@ -258,15 +260,15 @@ StartBackend() {
 	}
 	if !FileExist(filePath)
 		FileAppend " ", filePath, "UTF-8"
-	; Le opzioni disattivano il "congelamento" delle finestre nascoste/fuori schermo
-	; (funzionano solo se Edge non era già aperto).
+	; These options stop Edge from "freezing" hidden or off-screen windows
+	; (they only work if Edge was not already open).
 	Run 'msedge.exe --new-window --disable-features=CalculateNativeWinOcclusion --disable-backgrounding-occluded-windows "file:///' filePath '"'
-	; La finestra in modalità finestra non funzionava: la massimizziamo da soli.
+	; A non-maximized window didn't work, so we maximize it ourselves.
 	if WinWait(EdgeWin(), , 10)
 		WinMaximize EdgeWin()
 }
 
-; La pagina segnala il clic: togliamo il messaggio e la riduciamo a icona.
+; The page reports the click: remove the message and minimize the page.
 WaitVoiceReady() {
 	flag := A_ScriptDir "\voice_ready.flag"
 	if !FileExist(flag)
@@ -292,7 +294,7 @@ SendRequest(text) {
 	tmp := A_ScriptDir "\request.tmp"
 	try FileDelete tmp
 	FileAppend text, tmp, "UTF-8"
-	FileMove tmp, A_ScriptDir "\request.txt", 1   ; spostamento atomico
+	FileMove tmp, A_ScriptDir "\request.txt", 1   ; atomic move
 }
 
 StopReading() {
@@ -303,7 +305,7 @@ StopReading() {
 	if WinExist(EdgeWin()) && ActivateEdge()
 	{
 		prevWin := WinGetID("A")
-		Send "^+u" ; Preme di nuovo Ctrl+Shift+U per fermare la lettura in corso
+		Send "^+u" ; Press Ctrl+Shift+U again to stop the current reading
 		Sleep 50
 		try WinActivate prevWin
 	}
@@ -319,34 +321,34 @@ PlayAllText(textToPlay) {
 
 	prevWin := WinGetID("A")
 
-	; Trova la finestra di Edge (solo Edge, non altre finestre con "page.txt" nel titolo)
+	; Find the Edge window (only Edge, not other windows with "page.txt" in the title)
 	if !WinExist(EdgeWin())
 	{
 		ToolTip "Edge window not found."
 		SetTimer () => ToolTip(), -2000
 		return
 	}
-	; FORZIAMO LA FINESTRA FUORI SCHERMO E IN PRIMO PIANO
+	; Move the window off screen and bring it to the front
 	if WinGetMinMax(EdgeWin()) != 1
 		WinMaximize EdgeWin()
 	WinMove(-10000, -10000, 800, 600, EdgeWin())
 	if !ActivateEdge()
 		return
 
-	; Aggiorniamo la pagina per caricare il nuovo testo
+	; Reload the page to load the new text
 	Send "{F5}"
 	Sleep BrowserReloadWait
 
-	; Facciamo partire la lettura ad alta voce
+	; Start reading aloud
 	Send "^+u"
 	Sleep 50
 
-	; Torniamo subito al gioco
+	; Go straight back to the game
 	try WinActivate prevWin
 }
 
-; Windows a volte rifiuta di cambiare finestra: controlliamo e riproviamo,
-; altrimenti F5 e Ctrl+Shift+U finirebbero nel gioco.
+; Windows sometimes refuses to switch windows: check and retry,
+; otherwise F5 and Ctrl+Shift+U would end up in the game.
 ActivateEdge() {
 	Loop 3 {
 		WinActivate EdgeWin()
