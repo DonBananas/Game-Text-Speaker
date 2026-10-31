@@ -1,4 +1,7 @@
-[QUICK DOWNLOAD](https://github.com/DonBananas/Game-Text-Speaker/archive/refs/heads/main.zip)
+- [QUICK DOWNLOAD](https://github.com/DonBananas/Game-Text-Speaker/archive/refs/heads/main.zip)
+- [REQUIREMENTS](https://github.com/DonBananas/Game-Text-Speaker#requirements)
+- [SETUP](https://github.com/DonBananas/Game-Text-Speaker#setup)
+- [CONTROLS](https://github.com/DonBananas/Game-Text-Speaker#controls)
 
 # Game Text Speaker
 
