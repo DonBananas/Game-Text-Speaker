@@ -6,7 +6,7 @@
 subtitles. Made for people with low vision.**
 
 Hold a key (**F4** by default, and you can [change it to any key you like](#changing-the-keys)),
-draw a box around the text and a natural-sounding voice reads it to you. Therea re already similar projects on GitHub but they never felt polishes (slowness, inconsistency). I made this script to fix this issue, it's very fast, basically instantaneous, and works consistently without issues.
+draw a box around the text and a natural-sounding voice reads it to you. Therea re already similar projects on GitHub but they never felt polished (slowness, inconsistency). I made this script to fix this issue, it's very fast, basically instantaneous, and works consistently without issues.
 
 ## Who it's for
 
