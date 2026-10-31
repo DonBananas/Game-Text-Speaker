@@ -1,3 +1,5 @@
+[QUICK DOWNLOAD](https://github.com/DonBananas/Game-Text-Speaker/archive/refs/heads/main.zip)
+
 # Game Text Speaker
 
 **Reads aloud any text on your screen: games first, but also apps, images, videos and
